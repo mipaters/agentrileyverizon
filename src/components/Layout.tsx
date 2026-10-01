@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { BarChart3, Bot, BriefcaseBusiness, Building2, ChevronDown, CircleDollarSign, Compass, LayoutDashboard, Menu, Network, PackageSearch, RotateCcw, Settings, Store, X } from 'lucide-react'
+import { BarChart3, Bot, BriefcaseBusiness, Building2, ChevronDown, Compass, LayoutDashboard, Menu, Network, PackageSearch, RotateCcw, Settings, Store, X } from 'lucide-react'
 import { scenarios } from '../data/scenarios'
 import { useDemo } from '../state/DemoContext'
 import { Button, Disclaimer } from './UI'
@@ -13,7 +13,6 @@ const nav = [
   ['/pipeline', 'Qualified Pipeline', BarChart3],
   ['/marketplace', 'Verizon Marketplace', Store],
   ['/customer-zero', 'Customer Zero', Building2],
-  ['/tco', 'TCO & Business Case', CircleDollarSign],
   ['/architecture', 'Architecture & Governance', Network],
   ['/guide', 'Demo Guide', Compass],
 ] as const
@@ -34,7 +33,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <button className="currency" onClick={() => update({ currency: state.currency === 'USD' ? 'CAD' : 'USD' })}>{state.currency}</button>
         <Button onClick={runDemo}>Run Executive Demo</Button>
         <button className="icon-button" aria-label="Reset demo" onClick={() => { reset(); navigate('/') }}><RotateCcw size={18}/></button>
-        <button className="icon-button" aria-label="Settings" onClick={() => navigate('/tco')}><Settings size={18}/></button>
+        <button className="icon-button" aria-label="Governance settings" onClick={() => navigate('/architecture')}><Settings size={18}/></button>
         <button className="mobile-menu" onClick={() => setOpen(!open)} aria-label="Toggle navigation">{open ? <X/> : <Menu/>}</button>
       </div>
     </header>

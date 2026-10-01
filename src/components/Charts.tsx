@@ -24,9 +24,4 @@ export function CostChart({ data }: { data: { name: string; value: number }[] })
   return <div className="chart" role="img" aria-label="Azure cost by service"><ResponsiveContainer width="100%" height={280}><BarChart data={data}><CartesianGrid strokeDasharray="3 3"/><XAxis dataKey="name" tick={{ fontSize: 11 }}/><YAxis/><Tooltip/><Bar dataKey="value" fill={BLUE} radius={[5,5,0,0]}/></BarChart></ResponsiveContainer></div>
 }
 
-export function SensitivityChart() {
-  const data = [{ name: 'Response rate', value: 31 }, { name: 'Close rate', value: 27 }, { name: 'Contract value', value: 22 }, { name: 'Gross margin', value: 18 }, { name: 'Token cost', value: -6 }, { name: 'Conversation length', value: -9 }]
-  return <div className="chart" role="img" aria-label="Scenario sensitivity on three-year net value"><ResponsiveContainer width="100%" height={280}><BarChart data={data} layout="vertical" margin={{ left: 20 }}><CartesianGrid strokeDasharray="3 3"/><XAxis type="number"/><YAxis type="category" dataKey="name" width={115}/><Tooltip/><Bar dataKey="value" radius={[4,4,4,4]}>{data.map(x => <Cell key={x.name} fill={x.value >= 0 ? GREEN : RED}/>)}</Bar></BarChart></ResponsiveContainer></div>
-}
-
 export const chartColors = { RED, BLUE, GREEN, AMBER, GREY }

@@ -1,39 +1,38 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight, Bot, Check, CheckCircle2, Circle, Clock3, DollarSign, ExternalLink, FileCheck2, Filter, Mail, MessageSquare, Pause, Play, Search, Send, ShieldCheck, ShoppingCart, Sparkles, Store, Target, UserCheck, Users, XCircle } from 'lucide-react'
+import { ArrowRight, Bot, Check, CheckCircle2, Circle, Clock3, ExternalLink, FileCheck2, Filter, Mail, MessageSquare, Pause, Play, Search, Send, ShieldCheck, ShoppingCart, Sparkles, Store, Target, XCircle } from 'lucide-react'
 import { customerZero } from '../data/customerZero'
 import { governanceControls, raiTests } from '../data/governance'
 import { microsoftProducts, offers, verizonProducts } from '../data/offers'
 import { prospects } from '../data/prospects'
 import { scenarios } from '../data/scenarios'
-import { azureCosts, implementationPhases } from '../data/tcoData'
-import { CostChart, FunnelChart, RouteChart, SensitivityChart, TrendChart } from '../components/Charts'
+import { azureCosts } from '../data/operatingCosts'
+import { CostChart, FunnelChart, RouteChart, TrendChart } from '../components/Charts'
 import { Badge, Button, Card, Disclaimer, Input, Journey, Metric, Notice, PageHeader, Progress, SectionTitle, Select } from '../components/UI'
-import { calculateFinOpsAlerts } from '../lib/finOps'
 import { calculateFunnel } from '../lib/funnelCalculations'
 import { recommendOffer } from '../lib/offerRecommendation'
 import { calculateProspectScore, rankProspects } from '../lib/prospectScoring'
 import { calculateQualificationScore, determineDisposition } from '../lib/qualificationScoring'
 import { determineRoute } from '../lib/routingRules'
 import { formatCurrency } from '../lib/currency'
-import { calculateBusinessCase } from '../lib/tcoCalculations'
+import { calculateBusinessMetrics } from '../lib/businessMetrics'
 import { useDemo } from '../state/DemoContext'
 import type { Qualification, ScoreWeights } from '../types'
 
-const conclusion = 'The Agent Riley business case is not simply whether an AI conversation is inexpensive. It is whether Verizon can create qualified Microsoft CSP and Verizon Business pipeline, marketplace transactions, and recurring gross margin at a lower marginal cost than expanding its existing demand-generation and inside-sales model.'
+const conclusion = 'Agent Riley gives Verizon an agentic digital journey to qualify SMB demand, create customer-specific private offers, and generate Microsoft CSP and Verizon Business marketplace transactions with measurable unit economics.'
 const getScenario = (id: string) => scenarios.find(s => s.id === id) ?? scenarios[0]
 
 export function ExecutiveOverview() {
   const { state } = useDemo()
   const scenario = getScenario(state.scenarioId)
   const funnel = calculateFunnel(scenario)
-  const business = calculateBusinessCase(scenario)
+  const business = calculateBusinessMetrics(scenario)
   const accounts = funnel[0].value
   const qualified = funnel.find(x => x.name === 'Qualified')?.value ?? 0
   const closed = funnel.at(-1)?.value ?? 0
   return <>
-    <PageHeader eyebrow="AI-powered digital inside-sales engine" title="Turn Verizon’s SMB reach into measurable Microsoft CSP growth">
-      <p>Agent Riley uses Verizon customer intelligence, Microsoft propensity signals, compliant digital engagement, transparent qualification, and human-controlled routing to create a repeatable lead-to-order journey for Verizon Business.</p>
+    <PageHeader eyebrow="AI-powered digital inside-sales engine" title="Combine Verizon's SMB reach with Microsoft Data in an Agentic Solution to drive measurable Microsoft CSP Growth">
+      <p>Agent Riley uses Verizon customer intelligence, Microsoft propensity signals, compliant digital engagement, transparent BANT qualification, and policy-controlled private offers to create a repeatable lead-to-order journey through Beyond Now Digital Marketplace.</p>
     </PageHeader>
     <Journey/>
     <div className="metric-grid">
@@ -49,15 +48,15 @@ export function ExecutiveOverview() {
       <Metric label="Copilot seats" value={(closed*26).toLocaleString()}/>
       <Metric label="Cost per qualified opportunity" value={formatCurrency(business.costPerQualified, state.currency)} tone="azure"/>
       <Metric label="Azure cost per completed sale" value={formatCurrency(business.costPerSale, state.currency)} tone="azure"/>
-      <Metric label="Seller hours returned" value={Math.round(qualified*scenario.sellerHours).toLocaleString()} note="Estimated capacity"/>
-      <Metric label="Projected 3-year net value" value="Pending scope" note="Enter implementation investment in TCO" tone="warning"/>
+      <Metric label="Agentic SMB coverage" value={scenario.agenticCoverage.toLocaleString()} note="Accounts without seller involvement"/>
+      <Metric label="Azure cost / completed sale" value={formatCurrency(business.costPerSale, state.currency)} tone="azure"/>
     </div>
     <div className="two-col">
       <Card className="feature-panel dark">
-        <Badge tone="success">Growth without proportional seller expansion</Badge>
-        <h2>Let sellers focus on the moments that need human judgment.</h2>
-        <p>Riley automates repetitive prospect research, outreach, early qualification, offer matching, and opportunity preparation. Verizon sellers retain control of exceptions, complex solution design, pricing, negotiation, and closing.</p>
-        <div className="feature-stats"><div><strong>{Math.round(qualified*scenario.sellerHours).toLocaleString()}</strong><span>seller hours returned</span></div><div><strong>{closed.toLocaleString()}</strong><span>completed sales</span></div></div>
+        <Badge tone="success">An agentic digital growth channel</Badge>
+        <h2>Qualify, configure, and publish without a Verizon seller.</h2>
+        <p>Riley conducts compliant outreach, completes BANT qualification, selects from the approved catalog, and prepares a customer-specific private offer for Beyond Now Digital Marketplace. A Verizon program manager may validate the offer before publication; no seller or solution architect participates in the customer journey.</p>
+        <div className="feature-stats"><div><strong>{scenario.agenticCoverage.toLocaleString()}</strong><span>accounts covered agentically</span></div><div><strong>{closed.toLocaleString()}</strong><span>completed digital sales</span></div></div>
       </Card>
       <Card><SectionTitle title="Lead-to-order funnel" copy="Volumes respond to the selected operating scenario."/><FunnelChart data={funnel}/></Card>
     </div>
@@ -65,7 +64,7 @@ export function ExecutiveOverview() {
       <Card><SectionTitle title="Route mix" copy="Human-approved destinations for qualified opportunities."/><RouteChart multiplier={scenario.accountMultiplier}/></Card>
       <Card><SectionTitle title="Pipeline growth vs. Azure run rate" copy="Pipeline expands faster than platform operating cost in the synthetic scenario."/><TrendChart scaled={scenario.accountMultiplier}/></Card>
     </div>
-    <Card className="executive-conclusion"><Sparkles/><div><h2>Executive conclusion</h2><p>{conclusion}</p><p><b>Evaluate Riley using cost per qualified opportunity, cost per completed sale, attributable gross margin, marketplace conversion, seller capacity returned, and SMB coverage created without proportional seller growth.</b></p></div></Card>
+    <Card className="executive-conclusion"><Sparkles/><div><h2>Executive conclusion</h2><p>{conclusion}</p><p><b>Evaluate Riley using cost per qualified opportunity, private-offer publication rate, marketplace conversion, cost per completed sale, attributable gross margin, and agentic SMB coverage.</b></p></div></Card>
     <Disclaimer/>
   </>
 }
@@ -108,7 +107,7 @@ export function ProspectIntelligence() {
 }
 
 const workflowSteps = [
-  ['Prospect selected','Agent Riley'],['Synthetic signals retrieved','Prospect Intelligence Skill'],['Account identity matched','Prospect Intelligence Skill'],['Contactability checked','Consent and Policy Skill'],['Consent policy checked','Consent and Policy Skill'],['Existing partner checked','Consent and Policy Skill'],['Account researched','Account Research Skill'],['Product gaps identified','Account Research Skill'],['Outreach drafted','Agent Riley'],['Initial outreach approved','Agent Riley'],['Outreach sent in simulation','Agent Riley'],['Customer response received','Agent Riley'],['Qualification conversation started','Qualification Skill'],['Need confirmed','Qualification Skill'],['Authority assessed','Qualification Skill'],['Budget range captured','Qualification Skill'],['Timing captured','Qualification Skill'],['Security requirements captured','Qualification Skill'],['Data-residency concerns captured','Qualification Skill'],['Digital purchase readiness captured','Qualification Skill'],['Private offer recommendation produced','Offer Recommendation Skill'],['Recommendation validated','Offer Recommendation Skill'],['Private offer approval requested','Agent Riley'],['Private marketplace offer created','Marketplace Routing Skill'],['Marketplace or no-sale outcome selected','Agent Riley'],['Outcome telemetry recorded','Telemetry and FinOps Skill'],['Azure consumption recorded','Telemetry and FinOps Skill'],['FinOps thresholds evaluated','Telemetry and FinOps Skill'],
+  ['Prospect selected','Agent Riley'],['Synthetic signals retrieved','Prospect Intelligence Skill'],['Account identity matched','Prospect Intelligence Skill'],['Contactability checked','Consent and Policy Skill'],['Consent policy checked','Consent and Policy Skill'],['Existing partner checked','Consent and Policy Skill'],['Account researched','Account Research Skill'],['Product gaps identified','Account Research Skill'],['Outreach prepared','Agent Riley'],['Outreach policy validated','Consent and Policy Skill'],['Outreach sent in simulation','Agent Riley'],['Customer response received','Agent Riley'],['BANT qualification started','Qualification Skill'],['Business need confirmed','Qualification Skill'],['Authority assessed','Qualification Skill'],['Budget readiness captured','Qualification Skill'],['Timing captured','Qualification Skill'],['Offer eligibility checked','Offer Recommendation Skill'],['Digital purchase readiness captured','Qualification Skill'],['Approved catalog matched','Offer Recommendation Skill'],['Private offer recommendation produced','Offer Recommendation Skill'],['Recommendation policy validated','Offer Recommendation Skill'],['Optional program-manager validation','Program Manager Control'],['Beyond Now private offer created','Marketplace Routing Skill'],['Marketplace or no-sale outcome selected','Agent Riley'],['Outcome telemetry recorded','Telemetry and FinOps Skill'],['Azure consumption recorded','Telemetry and FinOps Skill'],['FinOps thresholds evaluated','Telemetry and FinOps Skill'],
 ]
 
 const pathReplies = [
@@ -222,13 +221,14 @@ const bantStages = [
 
 export function AgentWorkspace() {
   const { state, update } = useDemo()
+  const [programManagerValidated, setProgramManagerValidated] = useState(false)
   const selected = prospects.find(p => p.id === state.selectedProspectId) ?? prospects[0]
   const step = workflowSteps[state.workflowStep]
   const qualificationScore = calculateQualificationScore(state.qualification)
   const route = determineRoute(selected, state.qualification)
   const advance = () => !state.paused && update({ workflowStep: Math.min(workflowSteps.length-1, state.workflowStep+1) })
   const applyPath = (path: number, conversationTurn = 0) => {
-    const base = { conversationPath: path, conversationTurn, conversationChoice: -1, bantResponses: [], optedOut: path === 5, handoffApproved: false }
+    const base = { conversationPath: path, conversationTurn, conversationChoice: -1, bantResponses: [], optedOut: path === 5, privateOfferPublished: false }
     if (path === 3) update({ ...base, qualification: { ...state.qualification, consent: true, existingPartner: true } })
     else if (path === 4) update({ ...base, qualification: { ...state.qualification, consent: true, existingPartner: false, complexity: 92 } })
     else if (path === 5) update({ ...base, qualification: { ...state.qualification, consent: false, existingPartner: false } })
@@ -249,7 +249,7 @@ export function AgentWorkspace() {
     return [speaker, text]
   })
   const progressConversation = () => {
-    if (!state.outreachApproved || state.paused) return
+    if (!state.outreachStarted || state.paused) return
     const nextTurn = state.conversationPath <= 2
       ? state.conversationTurn % 2 === 1 ? Math.min(sequence.length, state.conversationTurn + 1) : state.conversationTurn
       : state.conversationPath === 5
@@ -296,8 +296,8 @@ export function AgentWorkspace() {
     conversationTurn: 0,
     conversationChoice: -1,
     bantResponses: [],
-    outreachApproved: false,
-    handoffApproved: false,
+    outreachStarted: false,
+    privateOfferPublished: false,
     optedOut: false,
     workflowStep: 8,
     qualification: { ...state.qualification, consent: true, existingPartner: false, complexity: 28 },
@@ -311,8 +311,8 @@ export function AgentWorkspace() {
       conversationTurn: 0,
       conversationChoice: -1,
       bantResponses: [],
-      outreachApproved: false,
-      handoffApproved: false,
+      outreachStarted: false,
+      privateOfferPublished: false,
       optedOut: false,
       paused: false,
       qualification: { need: 82, authority: 74, budget: 65, timing: 84, digitalReadiness: 88, complexity: 28, consent: true, existingPartner: false },
@@ -327,32 +327,32 @@ export function AgentWorkspace() {
       <Card className="timeline-card"><SectionTitle title="Riley activity" copy={`${state.workflowStep+1} of ${workflowSteps.length} operational steps`}/><div className="timeline">{workflowSteps.map(([name, skill], i) => <button key={name} onClick={() => update({ workflowStep: i })} className={i === state.workflowStep ? 'current' : i < state.workflowStep ? 'done' : ''}><span>{i < state.workflowStep ? <Check size={13}/> : i+1}</span><div><b>{name}</b><small>{skill}</small></div></button>)}</div></Card>
       <div className="workspace-main">
         <Card className="activity-detail"><div className="activity-title"><div className="agent-icon"><Bot/></div><div><Badge tone="azure">{step[1]}</Badge><h2>{step[0]}</h2></div><Badge tone={state.paused ? 'warning' : 'success'}>{state.paused ? 'Paused' : state.workflowStep < 10 ? 'Ready' : 'Complete'}</Badge></div>
-          <div className="activity-grid"><div><span>Purpose</span><b>Advance the approved agentic sales workflow with minimum necessary synthetic data.</b></div><div><span>Inputs</span><b>{selected.id}, consent record, product footprint</b></div><div><span>Tools invoked</span><b>Synthetic CRM, policy engine, offer catalog</b></div><div><span>Result</span><b>{state.workflowStep >= 4 && selected.consent !== 'Confirmed' ? 'Blocked pending valid consent' : 'Policy-compliant operational result'}</b></div><div><span>Confidence</span><b>{selected.confidence}%</b></div><div><span>Required approval</span><b>{state.workflowStep < 10 ? (state.outreachApproved ? 'Outreach approved' : 'Outreach pending') : privateOfferReady ? (state.handoffApproved ? 'Private offer approved' : 'Private offer pending') : 'Not required for no sale'}</b></div><div><span>Token estimate</span><b>{640 + state.workflowStep*48} tokens</b></div><div><span>Estimated Azure cost</span><b>${(0.09 + state.workflowStep*.018).toFixed(2)}</b></div><div><span>Retry count</span><b>0</b></div><div><span>FinOps status</span><b>Within policy</b></div></div>
+          <div className="activity-grid"><div><span>Purpose</span><b>Advance the policy-controlled agentic sales workflow with minimum necessary synthetic data.</b></div><div><span>Inputs</span><b>{selected.id}, consent record, product footprint</b></div><div><span>Tools invoked</span><b>Synthetic CRM, policy engine, approved catalog, Beyond Now pattern</b></div><div><span>Result</span><b>{state.workflowStep >= 4 && selected.consent !== 'Confirmed' ? 'Blocked pending valid consent' : 'Policy-compliant operational result'}</b></div><div><span>Confidence</span><b>{selected.confidence}%</b></div><div><span>Control status</span><b>{state.workflowStep < 10 ? (state.outreachStarted ? 'Outreach policy passed' : 'Ready for policy check') : privateOfferReady ? (state.privateOfferPublished ? 'Private offer published' : programManagerValidated ? 'Program manager validated' : 'Ready for publication') : 'No publication required'}</b></div><div><span>Token estimate</span><b>{640 + state.workflowStep*48} tokens</b></div><div><span>Estimated Azure cost</span><b>${(0.09 + state.workflowStep*.018).toFixed(2)}</b></div><div><span>Retry count</span><b>0</b></div><div><span>FinOps status</span><b>Within policy</b></div></div>
           <Notice tone={selected.consent === 'Confirmed' && state.qualification.consent ? 'success' : 'warning'}><b>Policy decision:</b> {selected.consent === 'Confirmed' && state.qualification.consent ? 'Riley may complete qualification and create an approved private marketplace offer. Unsupported journeys close as no sale.' : 'Outreach and private-offer creation are blocked until consent is valid.'}</Notice>
         </Card>
         <Card className="conversation"><SectionTitle title="Simulated email conversation" copy="Riley identifies itself, asks permission, and limits questions." action={<Badge tone="azure"><Mail size={13}/> Audit trail on</Badge>}/>
           <div className="message riley"><div className="avatar">R</div><div><span>Agent Riley · Verizon Business digital sales assistant</span><p>Hi Jordan—I'm Riley, a digital sales assistant for Verizon Business. Based on synthetic account signals, {selected.company} may be approaching a Microsoft renewal and could benefit from a secure productivity review. May I ask two brief questions to see whether this is relevant? I can continue in your preferred language.</p></div></div>
           {visibleMessages.map(([speaker, text], index) => <div className={`message ${speaker}`} key={`${speaker}-${index}`}><div className="avatar">{speaker === 'riley' ? 'R' : 'J'}</div><div><span>{speaker === 'riley' ? 'Agent Riley · Verizon Business digital sales assistant' : `Jordan · ${selected.decisionMaker}`}</span><p>{text}</p></div></div>)}
-          <div className="approval-bar"><div><UserCheck/><div><b>Initial outbound approval</b><span>Required before a simulated message can be sent.</span></div></div><div className="button-row"><Button variant="danger" onClick={() => update({ outreachApproved: false })}>Reject</Button><Button disabled={state.optedOut} onClick={() => update({ outreachApproved: true, workflowStep: Math.max(10, state.workflowStep) })}>{state.outreachApproved ? <Check/> : <Send/>}{state.outreachApproved ? 'Approved' : 'Approve outreach'}</Button></div></div>
-          {state.outreachApproved && state.conversationTurn === 0 && <div className="response-choices"><div><b>Choose the customer’s initial response</b><span>Each response starts a different compliant workflow branch.</span></div><div className="path-grid">{pathReplies.map((p, i) => <button key={p} onClick={() => applyPath(i+1, 1)}>{i+1}<span>{p}</span></button>)}</div></div>}
-          {state.outreachApproved && state.conversationPath <= 2 && [2,4,6,8].includes(state.conversationTurn) && (() => {
+          <div className="approval-bar"><div><Bot/><div><b>Agentic outreach policy check</b><span>Riley validates contactability, consent, approved content, and campaign policy before sending.</span></div></div><div className="button-row"><Button disabled={state.optedOut || state.outreachStarted} onClick={() => update({ outreachStarted: true, workflowStep: Math.max(10, state.workflowStep) })}>{state.outreachStarted ? <Check/> : <Send/>}{state.outreachStarted ? 'Outreach started' : 'Start agentic outreach'}</Button></div></div>
+          {state.outreachStarted && state.conversationTurn === 0 && <div className="response-choices"><div><b>Choose the customer’s initial response</b><span>Each response starts a different compliant workflow branch.</span></div><div className="path-grid">{pathReplies.map((p, i) => <button key={p} onClick={() => applyPath(i+1, 1)}>{i+1}<span>{p}</span></button>)}</div></div>}
+          {state.outreachStarted && state.conversationPath <= 2 && [2,4,6,8].includes(state.conversationTurn) && (() => {
             const stageIndex = state.conversationTurn / 2 - 1
             const stage = bantStages[stageIndex]
             return <div className="response-choices"><div><Badge tone="azure">BANT · {stage.name}</Badge><b>Choose the customer’s response to Riley’s latest question</b><span>{stage.helper}</span></div><div className="contextual-options">{stage.options.map((option, i) => <button key={option} onClick={() => chooseBantResponse(stageIndex, i)}><MessageSquare size={16}/><span>{option}</span><ArrowRight size={15}/></button>)}</div></div>
           })()}
-          {state.outreachApproved && state.conversationPath > 2 && state.conversationPath < 5 && state.conversationTurn === 2 && <div className="response-choices"><div><b>Choose the customer’s response to Riley’s latest question</b><span>Options reflect the active {pathReplies[state.conversationPath - 1].toLowerCase()} conversation.</span></div><div className="contextual-options">{customerOptions.map((option, i) => <button key={option} onClick={() => chooseContextualResponse(i)}><MessageSquare size={16}/><span>{option}</span><ArrowRight size={15}/></button>)}</div></div>}
+          {state.outreachStarted && state.conversationPath > 2 && state.conversationPath < 5 && state.conversationTurn === 2 && <div className="response-choices"><div><b>Choose the customer’s response to Riley’s latest question</b><span>Options reflect the active {pathReplies[state.conversationPath - 1].toLowerCase()} conversation.</span></div><div className="contextual-options">{customerOptions.map((option, i) => <button key={option} onClick={() => chooseContextualResponse(i)}><MessageSquare size={16}/><span>{option}</span><ArrowRight size={15}/></button>)}</div></div>}
           <div className="conversation-actions">
             <div><span>Conversation progress</span><b>{state.conversationTurn} of {sequence.length} turns</b><Progress value={state.conversationTurn / sequence.length * 100} tone={state.optedOut ? 'red' : 'green'}/></div>
             <div className="button-row">
               <Button variant="secondary" onClick={resetConversation}>Reset conversation</Button>
-              <Button variant="danger" disabled={!state.outreachApproved || state.optedOut} onClick={() => applyPath(5, 1)}>Mark opted out</Button>
-              <Button disabled={!state.outreachApproved || state.paused || state.conversationTurn === 0 || (state.conversationPath <= 2 ? state.conversationTurn % 2 === 0 : state.conversationTurn === 2) || state.conversationTurn >= sequence.length} onClick={progressConversation}>{state.conversationPath === 5 && state.conversationTurn === 1 ? 'Confirm opt-out' : state.conversationPath <= 2 && state.conversationTurn === 9 ? 'Complete BANT qualification' : state.conversationPath <= 2 && state.conversationTurn < sequence.length ? `Continue ${bantStages[Math.min(3, Math.floor(state.conversationTurn / 2))]?.name ?? 'qualification'}` : state.conversationTurn < sequence.length ? 'Continue qualification' : 'Conversation complete'} <ArrowRight size={15}/></Button>
+              <Button variant="danger" disabled={!state.outreachStarted || state.optedOut} onClick={() => applyPath(5, 1)}>Mark opted out</Button>
+              <Button disabled={!state.outreachStarted || state.paused || state.conversationTurn === 0 || (state.conversationPath <= 2 ? state.conversationTurn % 2 === 0 : state.conversationTurn === 2) || state.conversationTurn >= sequence.length} onClick={progressConversation}>{state.conversationPath === 5 && state.conversationTurn === 1 ? 'Confirm opt-out' : state.conversationPath <= 2 && state.conversationTurn === 9 ? 'Complete BANT qualification' : state.conversationPath <= 2 && state.conversationTurn < sequence.length ? `Continue ${bantStages[Math.min(3, Math.floor(state.conversationTurn / 2))]?.name ?? 'qualification'}` : state.conversationTurn < sequence.length ? 'Continue qualification' : 'Conversation complete'} <ArrowRight size={15}/></Button>
             </div>
           </div>
         </Card>
         <div className="two-col">
           <Card><SectionTitle title="Qualification" copy="BANT-inspired and optimized for autonomous digital conversion."/><div className="score-summary"><div className="score-ring"><strong>{qualificationScore}</strong><span>overall score</span></div><div><b>{determineDisposition(state.qualification)}</b><p>Agentic outcome: {conversationComplete ? (privateOfferReady ? 'Private marketplace offer' : 'No sale') : 'Continue qualification'}</p><Progress value={qualificationScore} tone={qualificationScore >= 70 ? 'green' : 'amber'}/></div></div>{Object.entries(state.qualification).filter(([,v]) => typeof v === 'number').map(([key, value]) => <label className="slider-row" key={key}><span>{key.replace(/([A-Z])/g,' $1')}<b>{value}</b></span><input type="range" min="0" max="100" value={value as number} onChange={e => update({ qualification: { ...state.qualification, [key]: Number(e.target.value) } as Qualification })}/></label>)}</Card>
-          <Card><SectionTitle title="Agentic outcome" copy="Riley either publishes a private marketplace offer or records no sale and advances."/><div className="route-decision"><div className="route-icon">{privateOfferReady ? <ShoppingCart/> : noSale ? <XCircle/> : <ArrowRight/>}</div><div><span>Current outcome</span><h3>{privateOfferReady ? 'Verizon Marketplace private offer' : noSale ? 'Close as no sale' : 'Qualification in progress'}</h3><p>{privateOfferReady ? 'The bounded offer fits, consent is valid, and the customer is ready for a digital purchase.' : noSale ? 'The customer declined, retained an existing partner, withdrew consent, or requires terms outside the approved digital catalog.' : 'Riley is gathering the evidence needed to select one of the two permitted outcomes.'}</p></div></div>{privateOfferReady && <Button onClick={() => update({ handoffApproved: true, workflowStep: 23 })}>{state.handoffApproved ? <CheckCircle2/> : <FileCheck2/>}{state.handoffApproved ? 'Private offer published' : 'Approve and publish private offer'}</Button>}{state.handoffApproved && privateOfferReady && <Notice tone="success">Private offer VZ-PO-{selected.id}-26 is now available in the simulated Verizon Business Marketplace. No live order or CRM write occurred.</Notice>}{noSale && <><Notice tone="warning">Opportunity closed as no sale. The reason is recorded for campaign learning and no seller or specialist handoff is created.</Notice><Button onClick={moveToNextCustomer}>Close no sale and move to next customer <ArrowRight/></Button></>}</Card>
+          <Card><SectionTitle title="Agentic outcome" copy="Riley publishes an eligible private offer through Beyond Now or records no sale and advances."/><div className="route-decision"><div className="route-icon">{privateOfferReady ? <ShoppingCart/> : noSale ? <XCircle/> : <ArrowRight/>}</div><div><span>Current outcome</span><h3>{privateOfferReady ? 'Beyond Now private offer' : noSale ? 'Close as no sale' : 'Qualification in progress'}</h3><p>{privateOfferReady ? 'BANT qualification is complete, the approved catalog fits, consent is valid, and the customer is ready for a digital purchase.' : noSale ? 'The customer declined, retained an existing partner, withdrew consent, or requires terms outside the approved digital catalog.' : 'Riley is gathering the evidence needed to select one of the two permitted outcomes.'}</p></div></div>{privateOfferReady && !programManagerValidated && <Button variant="secondary" onClick={() => setProgramManagerValidated(true)}><FileCheck2/> Optional program manager validation</Button>}{privateOfferReady && <Button onClick={() => update({ privateOfferPublished: true, workflowStep: 23 })}>{state.privateOfferPublished ? <CheckCircle2/> : <ShoppingCart/>}{state.privateOfferPublished ? 'Private offer published' : 'Publish to Beyond Now Marketplace'}</Button>}{state.privateOfferPublished && privateOfferReady && <Notice tone="success">Private offer VZ-PO-{selected.id}-26 is available in the simulated Beyond Now Digital Marketplace. {programManagerValidated ? 'A Verizon program manager validated the offer before publication.' : 'The offer passed the approved automated publication policy.'} No live order or CRM write occurred.</Notice>}{noSale && <><Notice tone="warning">Opportunity closed as no sale. The reason is recorded for campaign learning; no seller, solution architect, or customer handoff is created.</Notice><Button onClick={moveToNextCustomer}>Close no sale and move to next customer <ArrowRight/></Button></>}</Card>
         </div>
       </div>
     </div>
@@ -386,17 +386,17 @@ export function QualifiedPipeline() {
   const [view, setView] = useState('Funnel')
   const scenario = getScenario(state.scenarioId)
   const funnel = calculateFunnel(scenario)
-  const business = calculateBusinessCase(scenario)
-  const views = ['Funnel','Kanban','Table','Route performance','Seller productivity','Cost']
+  const business = calculateBusinessMetrics(scenario)
+  const views = ['Funnel','Kanban','Table','Outcome performance','Agentic productivity','Cost']
   return <>
-    <PageHeader eyebrow="Measured lead-to-order outcomes" title="Qualified Pipeline"><p>Track conversion, route performance, bookings, seller capacity, and cost using the same scenario calculations.</p></PageHeader>
+    <PageHeader eyebrow="Measured lead-to-order outcomes" title="Qualified Pipeline"><p>Track BANT qualification, private-offer publication, Beyond Now conversion, bookings, agentic coverage, and cost using the same scenario calculations.</p></PageHeader>
     <div className="tabs">{views.map(x => <button key={x} className={view === x ? 'active' : ''} onClick={() => setView(x)}>{x}</button>)}</div>
-    <div className="metric-grid six"><Metric label="Qualified opportunities" value={business.qualified.toLocaleString()}/><Metric label="Pipeline value" value={formatCurrency(business.qualified*69000,state.currency)} tone="positive"/><Metric label="Completed sales" value={business.sales.toLocaleString()} tone="positive"/><Metric label="Bookings" value={formatCurrency(business.bookings,state.currency)} tone="positive"/><Metric label="Gross margin" value={formatCurrency(business.grossMargin,state.currency)} tone="positive"/><Metric label="Seller hours returned" value={Math.round(business.qualified*scenario.sellerHours).toLocaleString()}/></div>
+    <div className="metric-grid six"><Metric label="Qualified opportunities" value={business.qualified.toLocaleString()}/><Metric label="Pipeline value" value={formatCurrency(business.qualified*69000,state.currency)} tone="positive"/><Metric label="Completed sales" value={business.sales.toLocaleString()} tone="positive"/><Metric label="Bookings" value={formatCurrency(business.bookings,state.currency)} tone="positive"/><Metric label="Gross margin" value={formatCurrency(business.grossMargin,state.currency)} tone="positive"/><Metric label="Agentic SMB coverage" value={scenario.agenticCoverage.toLocaleString()}/></div>
     {view === 'Funnel' && <div className="two-col"><Card><SectionTitle title="Lead-to-order funnel"/><FunnelChart data={funnel}/></Card><Card><SectionTitle title="Route mix"/><RouteChart multiplier={scenario.accountMultiplier}/></Card></div>}
     {view === 'Kanban' && <div className="kanban">{['Identified','Contacted','Qualifying','Qualified','Private offer ready','Marketplace offer','Closed / no sale'].map((stage,i) => <div key={stage}><h3>{stage}<Badge>{Math.max(1,12-i*2)}</Badge></h3>{prospects.slice(i,i+3).map(p => <Card key={p.id} className="kanban-card" onClick={() => update({ selectedProspectId: p.id })}><b>{p.company}</b><span>{formatCurrency(p.cspOpportunity+p.verizonOpportunity,state.currency)}</span><small>{p.recommendedOffer}</small></Card>)}</div>)}</div>}
-    {view === 'Table' && <Card className="table-card"><div className="table-wrap"><table><thead><tr><th>Opportunity</th><th>Stage</th><th>Outcome</th><th>Qualification</th><th>Value</th><th>Azure cost</th></tr></thead><tbody>{prospects.map((p,i) => <tr key={p.id} onClick={() => update({ selectedProspectId:p.id })}><td><b>{p.company}</b><small>D365-{p.id}-26</small></td><td>{['Qualified','Private offer ready','Marketplace offer','Qualifying'][i%4]}</td><td>{p.route}</td><td>{64+(i%6)*5}</td><td>{formatCurrency(p.cspOpportunity+p.verizonOpportunity,state.currency)}</td><td>{formatCurrency(86+i*14,state.currency,false)}</td></tr>)}</tbody></table></div></Card>}
-    {view === 'Route performance' && <div className="two-col"><Card><SectionTitle title="Agentic outcome mix"/><RouteChart multiplier={scenario.accountMultiplier}/></Card><Card><SectionTitle title="Digital conversion"/>{[['Private marketplace offer',scenario.closeRate*1.18*100],['No sale',100-scenario.closeRate*1.18*100]].map(([name,value]) => <div className="bar-row" key={name as string}><span>{name}<b>{Number(value).toFixed(1)}%</b></span><Progress value={Number(value)} tone={name === 'Private marketplace offer' ? 'green' : 'amber'}/></div>)}</Card></div>}
-    {view === 'Seller productivity' && <div className="two-col"><Card><SectionTitle title="Seller capacity returned"/><TrendChart scaled={scenario.accountMultiplier}/></Card><Card><SectionTitle title="Productivity indicators"/><div className="big-list"><div><Users/><span>Hours returned per qualified opportunity</span><b>{scenario.sellerHours}</b></div><div><Clock3/><span>Average qualification cycle</span><b>2.4 days</b></div><div><UserCheck/><span>Seller acceptance</span><b>78%</b></div></div></Card></div>}
+    {view === 'Table' && <Card className="table-card"><div className="table-wrap"><table><thead><tr><th>Opportunity</th><th>Stage</th><th>Outcome</th><th>Qualification</th><th>Value</th><th>Azure cost</th></tr></thead><tbody>{prospects.map((p,i) => <tr key={p.id} onClick={() => update({ selectedProspectId:p.id })}><td><b>{p.company}</b><small>RLY-{p.id}-26</small></td><td>{['Qualified','Private offer ready','Marketplace offer','Qualifying'][i%4]}</td><td>{p.route}</td><td>{64+(i%6)*5}</td><td>{formatCurrency(p.cspOpportunity+p.verizonOpportunity,state.currency)}</td><td>{formatCurrency(86+i*14,state.currency,false)}</td></tr>)}</tbody></table></div></Card>}
+    {view === 'Outcome performance' && <div className="two-col"><Card><SectionTitle title="Agentic outcome mix"/><RouteChart multiplier={scenario.accountMultiplier}/></Card><Card><SectionTitle title="Digital conversion"/>{[['Beyond Now private offer',scenario.closeRate*1.18*100],['No sale',100-scenario.closeRate*1.18*100]].map(([name,value]) => <div className="bar-row" key={name as string}><span>{name}<b>{Number(value).toFixed(1)}%</b></span><Progress value={Number(value)} tone={name === 'Beyond Now private offer' ? 'green' : 'amber'}/></div>)}</Card></div>}
+    {view === 'Agentic productivity' && <div className="two-col"><Card><SectionTitle title="Agentic pipeline growth"/><TrendChart scaled={scenario.accountMultiplier}/></Card><Card><SectionTitle title="Productivity indicators"/><div className="big-list"><div><Bot/><span>SMB accounts covered without sellers</span><b>{scenario.agenticCoverage.toLocaleString()}</b></div><div><Clock3/><span>Average BANT qualification cycle</span><b>2.4 days</b></div><div><CheckCircle2/><span>Private offers passing policy validation</span><b>91%</b></div></div></Card></div>}
     {view === 'Cost' && <div className="two-col"><Card><SectionTitle title="Azure cost by service"/><CostChart data={azureCosts.map(x => ({name:x.name,value:Math.round(scenario.monthlyAzure*x.share)}))}/></Card><Card><SectionTitle title="Unit economics"/><div className="calc-list"><div><span>Cost per account evaluated</span><b>{formatCurrency(scenario.monthlyAzure/funnel[0].value,state.currency,false)}</b></div><div><span>Cost per response</span><b>{formatCurrency(scenario.monthlyAzure/Math.max(1,funnel[5].value),state.currency,false)}</b></div><div><span>Cost per qualified opportunity</span><b>{formatCurrency(business.costPerQualified,state.currency,false)}</b></div><div><span>Cost per completed sale</span><b>{formatCurrency(business.costPerSale,state.currency,false)}</b></div></div></Card></div>}
   </>
 }
@@ -415,7 +415,7 @@ export function MarketplaceJourney() {
       <Card className="marketplace-summary"><div className="marketplace-brand"><Store/><b>Verizon Business Marketplace</b><Badge tone="warning">SIMULATION</Badge></div><p>Prepared for</p><h2>{selected.company}</h2><div className="detail-grid"><div><span>Qualification score</span><b>{calculateQualificationScore(state.qualification)}/100</b></div><div><span>Consent</span><b>{eligible ? 'Validated' : 'Blocked'}</b></div><div><span>Referral ID</span><b>VZ-RLY-{selected.id}-26</b></div><div><span>Offer expires</span><b>October 28, 2026</b></div></div><div className="offer-ticket"><Badge tone="success">Riley recommended</Badge><h3>{offer.name}</h3><p>{offer.description}</p><div className="chip-row">{[...offer.products,...offer.verizonServices].map(x => <Badge key={x}>{x}</Badge>)}</div><div className="ticket-total"><span>Illustrative monthly price</span><strong>{formatCurrency(offer.monthlyPrice*selected.employees,state.currency,false)}</strong></div></div><div className="checkout-progress">{stages.map((x,i) => <div className={i <= stage ? 'active' : ''} key={x}><span>{i < stage ? <Check/> : i+1}</span><b>{x}</b></div>)}</div><div className="button-row"><Button variant="secondary" onClick={() => setStage(Math.max(0,stage-1))}>Back</Button><Button disabled={!eligible || stage === stages.length-1} onClick={() => setStage(Math.min(stages.length-1,stage+1))}>{stage === 2 ? <ShoppingCart/> : <ArrowRight/>}{stages[Math.min(stages.length-1,stage+1)]}</Button></div>{stage === 3 && <Notice tone="success">Simulated purchase completed and attributed to Agent Riley. No live order was placed.</Notice>}</Card>
       <div className="detail-stack">
         <Card><SectionTitle title="Beyond Now integration pattern" copy="Conceptual sequence only; no live connection."/><ol className="number-list">{['Riley prepares a qualified recommendation.','Verizon business rules validate eligibility.','Approved offer and context pass through an API layer.','Marketplace catalog resolves the configured offer.','Customer enters a simulated Verizon-owned purchase journey.','Order status and attribution return to Riley telemetry.'].map(x => <li key={x}>{x}</li>)}</ol></Card>
-        <Card><SectionTitle title="Private offer versus no sale"/><div className="compare"><div><h3><Store/> Publish a private offer</h3><p>Use when the approved digital catalog fits, consent is valid, qualification is complete, and the customer is ready to buy digitally.</p></div><div><h3><XCircle/> Close as no sale</h3><p>Use when the customer declines, retains an existing partner, withdraws consent, or needs unsupported pricing, contract, security, or migration terms.</p></div></div><Button variant="secondary" onClick={() => update({ handoffApproved: false })}>Return offer to Riley</Button></Card>
+        <Card><SectionTitle title="Private offer versus no sale"/><div className="compare"><div><h3><Store/> Publish a private offer</h3><p>Riley sends an eligible, customer-specific offer through the conceptual Beyond Now API pattern. A program manager may optionally validate it before publication.</p></div><div><h3><XCircle/> Close as no sale</h3><p>Riley records the outcome when the customer declines, retains an existing partner, withdraws consent, or needs unsupported terms.</p></div></div><Button variant="secondary" onClick={() => update({ privateOfferPublished: false })}>Return offer to Riley</Button></Card>
       </div>
     </div>
   </>
@@ -424,68 +424,28 @@ export function MarketplaceJourney() {
 export function CustomerZero() {
   const { state } = useDemo()
   const scenario = getScenario(state.scenarioId)
-  const business = calculateBusinessCase(scenario)
+  const business = calculateBusinessMetrics(scenario)
   const [target, setTarget] = useState({ response: scenario.responseRate*100, qualification: scenario.qualificationRate*100, acceptance: 78, marketplace: 23, seats: 74, copilot: 35 })
   return <>
-    <PageHeader eyebrow="Evidence separated from assumptions" title="Built from Microsoft Customer Zero experience"><p>Microsoft has used autonomous sales-agent patterns within its own SMB sales organization to research prospects, conduct digital outreach, and help turn customer contacts into qualified sales opportunities. The Verizon concept adapts that human-led, agent-operated pattern.</p></PageHeader>
+    <PageHeader eyebrow="Evidence separated from assumptions" title="Built from Microsoft Customer Zero experience"><p>Microsoft has used autonomous sales-agent patterns within its own SMB sales organization to research prospects, conduct digital outreach, and help turn customer contacts into qualified sales opportunities. The Verizon concept adapts that agentic pattern to autonomous BANT qualification and Beyond Now private offers.</p></PageHeader>
     <div className="evidence-grid">
       <Card className="evidence verified"><Badge tone="azure">Verified Customer Zero</Badge><h2>Microsoft internal experience</h2><div className="metric-grid">{customerZero.map(x => <Metric key={x.label} label={x.label} value={x.value}/>)}</div><Notice>These figures represent Microsoft internal Customer Zero experience and do not represent a Verizon forecast or commitment. Microsoft does not guarantee equivalent outcomes.</Notice></Card>
       <Card className="evidence target"><Badge tone="warning">Synthetic pilot target</Badge><h2>Editable Verizon targets</h2><div className="form-grid">{Object.entries(target).map(([key,value]) => <Input key={key} label={`${key.replace(/^\w/,c=>c.toUpperCase())} ${key === 'seats' ? '' : '(%)'}`} type="number" value={value} onChange={e => setTarget({...target,[key]:Number(e.target.value)})}/>)}</div><p className="muted">Targets are presenter-controlled synthetic assumptions, not commitments.</p></Card>
-      <Card className="evidence calculated"><Badge tone="success">Calculated scenario result</Badge><h2>{scenario.name} outcomes</h2><div className="calc-list"><div><span>Qualified opportunities</span><b>{business.qualified}</b></div><div><span>Completed sales</span><b>{business.sales}</b></div><div><span>Annual bookings</span><b>{formatCurrency(business.bookings,state.currency)}</b></div><div><span>Cost per qualified opportunity</span><b>{formatCurrency(business.costPerQualified,state.currency)}</b></div><div><span>Seller hours returned</span><b>{Math.round(business.qualified*scenario.sellerHours)}</b></div></div></Card>
+      <Card className="evidence calculated"><Badge tone="success">Calculated scenario result</Badge><h2>{scenario.name} outcomes</h2><div className="calc-list"><div><span>Qualified opportunities</span><b>{business.qualified}</b></div><div><span>Completed sales</span><b>{business.sales}</b></div><div><span>Annual bookings</span><b>{formatCurrency(business.bookings,state.currency)}</b></div><div><span>Cost per qualified opportunity</span><b>{formatCurrency(business.costPerQualified,state.currency)}</b></div><div><span>Agentic SMB coverage</span><b>{scenario.agenticCoverage.toLocaleString()}</b></div></div></Card>
     </div>
-    <Disclaimer/>
-  </>
-}
-
-export function TcoBusinessCase() {
-  const { state, update } = useDemo()
-  const scenario = getScenario(state.scenarioId)
-  const business = calculateBusinessCase(scenario,state.implementationInvestment,state.funding)
-  const alerts = calculateFinOpsAlerts(scenario.monthlyAzure,state.monthlyBudget)
-  const costData = azureCosts.map(x => ({name:x.name,value:Math.round(scenario.monthlyAzure*x.share)}))
-  return <>
-    <PageHeader eyebrow="Economics of an AI-powered inside-sales channel" title="TCO & Business Case" actions={<Button variant="secondary" onClick={() => update({currency:state.currency === 'USD' ? 'CAD' : 'USD'})}>{state.currency} <ArrowRight/> {state.currency === 'USD' ? 'CAD' : 'USD'}</Button>}>
-      <p>Agent Riley combines implementation investment, Azure consumption, Verizon operational ownership, and human-controlled sales workflows to create qualified Microsoft CSP pipeline and recurring Verizon Business revenue.</p>
-    </PageHeader>
-    <div className="metric-grid">
-      <Metric label="Implementation model" value="Microsoft FDE" note="3-month outcome-oriented co-engineering"/>
-      <Metric label="Gross implementation investment" value={state.implementationInvestment ? formatCurrency(state.implementationInvestment,state.currency) : 'Pending formal proposal'} tone="warning"/>
-      <Metric label="Net Verizon investment" value={state.implementationInvestment ? formatCurrency(business.netVerizonInvestment,state.currency) : 'Pending scope'}/>
-      <Metric label="Monthly Azure run rate" value={formatCurrency(scenario.monthlyAzure,state.currency)} tone="azure"/>
-      <Metric label="Annual Azure run rate" value={formatCurrency(business.annualAzure,state.currency)} tone="azure"/>
-      <Metric label="Azure cost / qualified opportunity" value={formatCurrency(business.costPerQualified,state.currency)} tone="azure"/>
-      <Metric label="3-year gross TCO" value={state.implementationInvestment ? formatCurrency(business.grossTco,state.currency) : 'Pending scope'}/>
-      <Metric label="3-year gross-margin contribution" value={formatCurrency(business.benefit,state.currency)} tone="positive"/>
-      <Metric label="Break-even completed sales" value={business.breakEvenSales ?? 'Pending scope'}/>
-      <Metric label="Projected ROI" value={business.roi === null ? 'Pending scope' : `${(business.roi*100).toFixed(0)}%`} tone={business.roi && business.roi > 0 ? 'positive' : 'warning'}/>
-    </div>
-    <div className="two-col">
-      <Card><SectionTitle title="Implementation investment" copy="No value is prepopulated. Funding changes who pays, not gross economic cost."/><Input label="Gross implementation investment" type="number" min="0" placeholder="Enter presenter-supplied amount" value={state.implementationInvestment || ''} onChange={e => update({implementationInvestment:Number(e.target.value)})}/><Input label="Microsoft / partner / other approved funding" type="number" min="0" value={state.funding || ''} onChange={e => update({funding:Number(e.target.value)})}/><div className="calc-list"><div><span>Gross economic cost</span><b>{state.implementationInvestment ? formatCurrency(state.implementationInvestment,state.currency,false) : 'Pending'}</b></div><div><span>Net Verizon implementation investment</span><b>{state.implementationInvestment ? formatCurrency(business.netVerizonInvestment,state.currency,false) : 'Pending'}</b></div></div><Notice>Implementation investment is pending formal scoping. No value shown in this demo represents an authorized Microsoft FDE, Microsoft Industry Solutions Delivery, partner, or Verizon estimate.</Notice></Card>
-      <Card><SectionTitle title="Implementation model" copy="Microsoft Forward Deployed Engineering"/><p>Microsoft FDE would work with Verizon as an outcome-oriented co-engineering team for a fixed engagement period to create a production-oriented vertical slice, integrate agreed workflow components, establish governance and observability, run a controlled pilot, and transfer the pattern to Verizon.</p><div className="phase-list">{implementationPhases.map((phase,i) => <div key={phase.name}><span>{i+1}</span><div><h3>{phase.name}</h3>{phase.items.map(x => <p key={x}><Check/>{x}</p>)}</div></div>)}</div></Card>
-    </div>
-    <div className="two-col">
-      <Card><SectionTitle title="Azure operating cost" copy="Illustrative demo rates—validate with Azure Pricing Calculator and Verizon's agreement."/><CostChart data={costData}/><div className="calc-list"><div><span>Monthly fixed + variable run rate</span><b>{formatCurrency(scenario.monthlyAzure,state.currency,false)}</b></div><div><span>Annual run rate</span><b>{formatCurrency(business.annualAzure,state.currency,false)}</b></div></div></Card>
-      <Card><SectionTitle title="Funnel and unit economics"/><FunnelChart data={calculateFunnel(scenario).slice(0,8)}/><div className="calc-list"><div><span>Cost per qualified opportunity</span><b>{formatCurrency(business.costPerQualified,state.currency,false)}</b></div><div><span>Cost per completed sale</span><b>{formatCurrency(business.costPerSale,state.currency,false)}</b></div><div><span>Azure cost as % of gross margin</span><b>{business.grossMargin ? `${(business.annualAzure/business.grossMargin*100).toFixed(1)}%` : 'Not available'}</b></div></div></Card>
-    </div>
-    <Card><SectionTitle title="Three-year TCO and business value" copy={state.implementationInvestment ? 'Full economics activated by presenter-supplied implementation value.' : 'Enter a scoped implementation investment to complete ROI, payback, and break-even analysis.'}/><div className="year-grid">{[1,2,3].map(year => <div key={year}><Badge>Year {year}</Badge><div><span>Azure operations</span><b>{formatCurrency(business.annualAzure,state.currency)}</b></div><div><span>Business operations</span><b>{formatCurrency(96000*scenario.accountMultiplier,state.currency)}</b></div><div><span>Bookings</span><b>{formatCurrency(business.bookings*(1+(year-1)*.12),state.currency)}</b></div><div><span>Gross margin</span><b>{formatCurrency(business.grossMargin*(1+(year-1)*.12),state.currency)}</b></div></div>)}</div>{state.implementationInvestment > 0 && <div className="metric-grid six"><Metric label="Net economic value" value={formatCurrency(business.netValue,state.currency)} tone={business.netValue>0?'positive':'warning'}/><Metric label="ROI" value={`${((business.roi??0)*100).toFixed(0)}%`}/><Metric label="Payback" value={`${business.paybackMonths} months`}/><Metric label="Benefit-cost ratio" value={`${(business.benefit/business.grossTco).toFixed(2)}x`}/><Metric label="Break-even sales" value={business.breakEvenSales}/><Metric label="Break-even opportunities" value={Math.ceil((business.breakEvenSales??0)/scenario.closeRate)}/></div>}</Card>
-    <div className="two-col">
-      <Card><SectionTitle title="Scenario sensitivity" copy="Directional effect on three-year net value—not statistical significance."/><SensitivityChart/></Card>
-      <Card><SectionTitle title="How Agent Riley’s cost stays controlled"/><Input label="Monthly Azure budget" type="number" min="1" value={state.monthlyBudget} onChange={e=>update({monthlyBudget:Number(e.target.value)})}/><div className="budget-gauge"><span><b>{formatCurrency(scenario.monthlyAzure,state.currency,false)}</b> of {formatCurrency(state.monthlyBudget,state.currency,false)}</span><Progress value={scenario.monthlyAzure/state.monthlyBudget*100} tone={scenario.monthlyAzure>state.monthlyBudget?'red':'blue'}/></div>{alerts.length ? alerts.map(a => <Notice key={a.threshold} tone={a.severity === 'breach' ? 'warning' : 'info'}>{a.label}: {a.threshold >= 1 ? 'Pause campaign and require review.' : 'Monitor consumption and unit economics.'}</Notice>) : <Notice tone="success">No FinOps thresholds reached.</Notice>}<div className="check-list">{['Token budget','Maximum cost per qualified opportunity','Maximum conversation turns','Model-routing policy','Prompt-cache target','Campaign-pause policy'].map(x=><span key={x}><CheckCircle2/>{x}</span>)}</div></Card>
-    </div>
-    <Card className="executive-conclusion"><DollarSign/><div><h2>Business case conclusion</h2><p>{conclusion}</p></div></Card>
     <Disclaimer/>
   </>
 }
 
 export function ArchitectureGovernance() {
   const layers = [
-    ['Experience layer',['Riley workspace','Seller workspace','Marketplace experience','Executive dashboard','TCO & FinOps dashboard']],
+    ['Experience layer',['Riley workspace','Program manager validation console','Beyond Now marketplace experience','Executive dashboard','Operations & FinOps dashboard']],
     ['Signal layer',['Synthetic CRM pattern','Customer hierarchy','Verizon product ownership','Consent evidence','Microsoft licensing footprint','CloudAscent-style propensity']],
-    ['Agent layer',['Agent Riley','Prospect Intelligence Skill','Consent and Policy Skill','Qualification Skill','Offer Recommendation Skill','CRM Handoff Skill','Telemetry and FinOps Skill']],
+    ['Agent layer',['Agent Riley','Prospect Intelligence Skill','Consent and Policy Skill','BANT Qualification Skill','Offer Recommendation Skill','Beyond Now Publication Skill','Telemetry and FinOps Skill']],
     ['Orchestration layer',['Microsoft Foundry patterns','Copilot Studio patterns','API Management','Workflow service','Model routing','Prompt management','Evaluation and guardrails']],
     ['Data layer',['Customer graph','Conversation records','Qualification evidence','Offer catalog','Opportunity data','Consent records','Cost telemetry']],
-    ['Integration layer',['Dynamics 365 pattern','Email service pattern','Marketplace APIs','Beyond Now pattern','Partner Center pattern','Analytics']],
-    ['Security & governance',['Microsoft Entra ID','Managed identity','Key Vault','Private networking','Purview pattern','DLP pattern','Human approvals','Consent controls','Azure Monitor','FinOps policies']],
+    ['Integration layer',['Email service pattern','Beyond Now private-offer APIs','Marketplace catalog','Order attribution','Analytics','Notification services']],
+    ['Security & governance',['Microsoft Entra ID','Managed identity','Key Vault','Private networking','Purview pattern','DLP pattern','Optional program-manager validation','Consent controls','Azure Monitor','FinOps policies']],
   ]
   return <>
     <PageHeader eyebrow="Microsoft platform patterns in Verizon-governed environments" title="Architecture & Governance"><p>Core design principle: Verizon customer data, consent policies, offer rules, and routing controls stay within Verizon-governed environments. This demo is conceptual and has no live integrations.</p></PageHeader>
@@ -507,9 +467,8 @@ const tour = [
   ['Conduct qualification','/workspace','Choose “Interested and ready now” and capture need, users, authority, timing, security, partner status, and channel preference.'],
   ['Recommend an offer','/offers','Show the primary bundle, alternative, Verizon attach opportunity, Microsoft CSP value, and approvals.'],
   ['Route the customer','/marketplace','Approve a standardized marketplace path and show simulated checkout and attribution.'],
-  ['Measure performance','/pipeline','Review funnel, conversion, route performance, cost, and seller capacity returned.'],
+  ['Measure performance','/pipeline','Review BANT conversion, private-offer publication, marketplace conversion, agentic coverage, and cost.'],
   ['Establish credibility','/customer-zero','Keep verified Microsoft experience separate from synthetic Verizon targets.'],
-  ['Explain economics','/tco','Show Azure run rate, cost per outcome, and enter a presenter-supplied implementation value.'],
   ['Close with governance','/architecture','Explain consent, security, approvals, auditability, and cost controls.'],
 ]
 
@@ -522,7 +481,7 @@ export function DemoGuide() {
     <PageHeader eyebrow="8–10 minute executive walkthrough" title="Demo Guide"><p>A structured story from growth opportunity to governed unit economics.</p></PageHeader>
     <div className="guide-layout">
       <Card className="guide-steps">{tour.map(([title],i)=><button key={title} className={i===state.tourStep?'active':''} onClick={()=>update({tourStep:i})}><span>{i+1}</span><div><b>{title}</b><small>{i===state.tourStep?'Current step':i<state.tourStep?'Completed':'Upcoming'}</small></div>{i<state.tourStep?<CheckCircle2/>:<ArrowRight/>}</button>)}</Card>
-      <Card className="talk-track"><Badge tone="azure">Step {state.tourStep+1} of {tour.length}</Badge><h2>{current[0]}</h2><p className="quote">“{current[2]}”</p><div className="talk-points"><h3>Presenter action</h3><p>Open <b>{current[0]}</b>, use the visible controls, and connect the page evidence to Verizon’s proactive SMB growth motion.</p><h3>Executive emphasis</h3><p>Keep customer consent, human control, transparent recommendations, and cost per business outcome central to the narrative.</p></div><div className="button-row"><Button variant="secondary" disabled={state.tourStep===0} onClick={()=>go(state.tourStep-1)}>Previous</Button><Button onClick={()=>go(state.tourStep)}><ExternalLink/> Open step</Button><Button variant="secondary" disabled={state.tourStep===tour.length-1} onClick={()=>go(state.tourStep+1)}>Next</Button></div></Card>
+      <Card className="talk-track"><Badge tone="azure">Step {state.tourStep+1} of {tour.length}</Badge><h2>{current[0]}</h2><p className="quote">“{current[2]}”</p><div className="talk-points"><h3>Presenter action</h3><p>Open <b>{current[0]}</b>, use the visible controls, and connect the page evidence to Verizon’s proactive SMB growth motion.</p><h3>Executive emphasis</h3><p>Keep customer consent, policy controls, transparent recommendations, optional program-manager validation, and cost per business outcome central to the narrative.</p></div><div className="button-row"><Button variant="secondary" disabled={state.tourStep===0} onClick={()=>go(state.tourStep-1)}>Previous</Button><Button onClick={()=>go(state.tourStep)}><ExternalLink/> Open step</Button><Button variant="secondary" disabled={state.tourStep===tour.length-1} onClick={()=>go(state.tourStep+1)}>Next</Button></div></Card>
     </div>
     <Card><SectionTitle title="Presenter controls"/><div className="button-row"><Button variant="secondary" onClick={()=>update({tourStep:0})}>Restart tour</Button><Button variant="danger" onClick={()=>{reset();navigate('/')}}>Reset scenario</Button><Button variant="ghost" onClick={()=>navigate('/')}>Exit tour</Button></div></Card>
     <Disclaimer/>

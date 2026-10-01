@@ -43,7 +43,7 @@ export interface DemoScenario {
   qualificationRate: number
   closeRate: number
   monthlyAzure: number
-  sellerHours: number
+  agenticCoverage: number
   campaigns: number
 }
 
@@ -88,17 +88,14 @@ export interface DemoState {
   selectedProspectId: string
   currency: 'USD' | 'CAD'
   workflowStep: number
-  outreachApproved: boolean
-  handoffApproved: boolean
+  outreachStarted: boolean
+  privateOfferPublished: boolean
   paused: boolean
   optedOut: boolean
   conversationPath: number
   conversationTurn: number
   conversationChoice: number
   bantResponses: number[]
-  implementationInvestment: number
-  funding: number
-  monthlyBudget: number
   tourStep: number
   scoreWeights: ScoreWeights
   qualification: Qualification

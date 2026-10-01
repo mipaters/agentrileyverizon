@@ -1,7 +1,7 @@
 import type { HTMLAttributes, ReactNode } from 'react'
 import { AlertTriangle, CheckCircle2, ChevronRight, Info, ShieldCheck } from 'lucide-react'
 
-export const DISCLAIMER = 'Concept demonstration using synthetic customer, seller, offer, marketplace, operational, and financial data. All customer records, product recommendations, prices, qualification outcomes, implementation assumptions, Azure consumption estimates, savings, bookings, margins, and ROI calculations are illustrative. The demo does not connect to live Verizon or Microsoft systems. Final architecture, implementation scope, commercial terms, pricing, compliance requirements, and operating costs require Verizon and Microsoft review.'
+export const DISCLAIMER = 'Concept demonstration using synthetic customer, offer, marketplace, operational, and financial data. All customer records, product recommendations, prices, qualification outcomes, Azure consumption estimates, bookings, margins, and unit-economics calculations are illustrative. The demo does not connect to live Verizon, Beyond Now, or Microsoft systems. Final architecture, commercial terms, pricing, compliance requirements, and operating costs require Verizon and Microsoft review.'
 
 export function PageHeader({ eyebrow, title, children, actions }: { eyebrow?: string; title: string; children?: ReactNode; actions?: ReactNode }) {
   return <div className="page-header"><div><p className="eyebrow">{eyebrow}</p><h1>{title}</h1>{children && <div className="page-copy">{children}</div>}</div>{actions && <div className="page-actions">{actions}</div>}</div>
